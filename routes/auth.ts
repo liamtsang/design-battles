@@ -1,45 +1,35 @@
 import { Hono, Context } from 'https://deno.land/x/hono@v4.0.3/mod.ts'
 import {
-  getRequiredEnv,
+  createGitHubOAuthConfig,
   getSessionId,
   handleCallback,
-  type OAuth2ClientConfig,
   signIn,
   signOut,
 } from "https://deno.land/x/deno_kv_oauth@v0.10.0/mod.ts";
 import { load } from "https://deno.land/std@0.216.0/dotenv/mod.ts";
-const env = await load();
 
-const oauthConfig: OAuth2ClientConfig = {
-  clientId: env["GITHUB_CLIENT_ID"],
-  clientSecret: env["GITHUB_CLIENT_SECRET"],
-  authorizationEndpointUri: "https://github.com/oauth/authorize?scope=user:email",
-  tokenUri: "https://github.com/oauth/token",
-};
-
-async function handler(request: Request) {
-  const { pathname } = new URL(request.url);
-  switch (pathname) {
-    case "/oauth/signin":
-      return await signIn(request, oauthConfig);
-    case "/another-dir/callback":
-      const { response } = await handleCallback(request, oauthConfig);
-      return response;
-    case "/oauth/signout":
-      return await signOut(request);
-    case "/protected-route":
-      return await getSessionId(request) === undefined
-        ? new Response("Unauthorized", { status: 401 })
-        : new Response("You are allowed");
-    default:
-      return new Response(null, { status: 404 });
-  }
-}
+const oauthConfig = createGitHubOAuthConfig();
 
 const app = new Hono();
 
 app.get("/oauth/signin", async (c: Context) => {
   return await signIn(c.req.raw, oauthConfig);
+});
+
+app.get("/another-dir/callback", async (c: Context) => {
+  const { response } = await handleCallback(c.req.raw, oauthConfig);
+  console.log(response);
+  return response;
+});
+
+app.get("/oauth/signout", async (c: Context) => {
+  return await signOut(c.req.raw);
+});
+
+app.get("/protected-route", async (c: Context) => {
+  return await getSessionId(c.req.raw) === undefined
+    ? new Response("Unauthorized", { status: 401 })
+    : new Response("You are allowed");
 });
 
 export default app
