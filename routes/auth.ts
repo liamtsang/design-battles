@@ -7,10 +7,12 @@ import {
   signIn,
   signOut,
 } from "https://deno.land/x/deno_kv_oauth@v0.10.0/mod.ts";
+import { load } from "https://deno.land/std@0.216.0/dotenv/mod.ts";
+const env = await load();
 
 const oauthConfig: OAuth2ClientConfig = {
-  clientId: getRequiredEnv("GITHUB_CLIENT_ID"),
-  clientSecret: getRequiredEnv("GITHUB_CLIENT_SECRET"),
+  clientId: env["GITHUB_CLIENT_ID"],
+  clientSecret: env["GITHUB_CLIENT_SECRET"],
   authorizationEndpointUri: "https://github.com/oauth/authorize?scope=user:email",
   tokenUri: "https://github.com/oauth/token",
 };
