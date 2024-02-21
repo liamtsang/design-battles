@@ -15,6 +15,10 @@ export default function Layout({
         <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
       </head>
       <body>
+        <header>
+          <a href="/auth/oauth/signin">Login</a>
+          <a href="/matchmaker">Find Match</a>
+        </header>
         ${content}
       </body>
     </html>

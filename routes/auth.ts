@@ -6,7 +6,7 @@ import {
   signIn,
   signOut,
 } from "https://deno.land/x/deno_kv_oauth@v0.10.0/mod.ts";
-import { load } from "https://deno.land/std@0.216.0/dotenv/mod.ts";
+import { getGitHubUser } from '../utils/github.ts'
 
 const oauthConfig = createGitHubOAuthConfig();
 
@@ -17,8 +17,9 @@ app.get("/oauth/signin", async (c: Context) => {
 });
 
 app.get("/another-dir/callback", async (c: Context) => {
-  const { response } = await handleCallback(c.req.raw, oauthConfig);
-  console.log(response);
+  const { response, tokens } = await handleCallback(c.req.raw, oauthConfig);
+  const gitHubUser = await getGitHubUser(tokens.accessToken)
+  console.log(gitHubUser);
   return response;
 });
 
