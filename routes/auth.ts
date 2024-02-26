@@ -2,6 +2,7 @@ import { Context, Hono, Next } from "https://deno.land/x/hono@v4.0.3/mod.ts";
 import {
   deleteCookie,
   getCookie,
+  html,
 } from "https://deno.land/x/hono@v4.0.3/helper.ts";
 import {
   createGitHubOAuthConfig,
@@ -20,6 +21,7 @@ import { OAuthProviderInfo } from "../utils/types.ts";
 import { getGitHubUser } from "../utils/github.ts";
 import {
   createUser,
+  createUserByGithub,
   internalUserExists,
   oauthUserExists,
 } from "../utils/user.ts";
@@ -33,7 +35,7 @@ app.get("/oauth/signin", async (c: Context) => {
   return await signIn(c.req.raw, oauthConfig);
 });
 
-app.get("/oauth/signout", async (c: Context) => {
+app.get("/oauth/signout", (c: Context) => {
   // Not using proper signOut logic ! may cause issues
   deleteCookie(c, "requires-onboarding");
   deleteCookie(c, "site-session");
@@ -49,10 +51,6 @@ app.get("/callback", async (c: Context) => {
   };
   // const exists = await oauthUserExists(o);
   const exists = false;
-
-  // Trying to figure out how to forward cookies to a redirect url
-  // Append new user cookie -> Username onboard & creating user KV's -> Redirect to signin
-
   if (exists) {
     const cookie: Cookie = {
       name: "internal-uid",
@@ -61,9 +59,7 @@ app.get("/callback", async (c: Context) => {
     };
     setCookie(response.headers, cookie);
     return response;
-  }
-
-  if (!exists) {
+  } else if (!exists) {
     const val = encodeURIComponent(JSON.stringify(o));
     const cookie: Cookie = {
       name: "requires-onboarding",
@@ -78,19 +74,14 @@ app.get("/callback", async (c: Context) => {
 
 // Onboarding | htmx form, POST username -> Check if valid -> Add user KV -> Redirect to signin
 app
-  .get("/onboard", async (c: Context) => {
+  .get("/onboard", (c: Context) => {
     return c.html(Layout({ title: "test", user: "", content: Onboard() }));
   })
-  .post((c: Context) => {
-    console.log("POST to /onboard");
+  .post(async (c: Context) => {
+    const body = await c.req.parseBody();
     const cookie = getCookie(c, "requires-onboarding");
     const o: OAuthProviderInfo = JSON.parse(cookie as string);
-    switch (o.provider) {
-      case "github": {
-        // Enter KV users-by-github && users
-        o.id;
-      }
-    }
+    createUser(body["username"] as string, o);
   });
 
 app.post("/username-exists", async (c: Context) => {
@@ -100,22 +91,30 @@ app.post("/username-exists", async (c: Context) => {
     throw new HTTPException(422, { message: "Usernames can only be strings" });
   } else if (typeof username === "string") {
     // Maybe weed out weird characters
-    const exists = await internalUserExists(username);
+    // const exists = await internalUserExists(username);
+    let exists = true;
+    if (username === "valid") exists = false;
     if (exists) {
-      return c.html(`
+      return c.html(html`
         <div hx-target="this" hx-swap="outerHTML" class="error">
           <label>Username</label>
-          <input name="email" hx-post="/auth/username-exists" hx-indicator="#ind" value=${username}>
+          <input name="username" hx-post="/auth/username-exists" hx-indicator="#ind" value=${username} aria-invalid="true" aria-required="true">
           <img id="ind" src="/img/bars.svg" class="htmx-indicator"/>
-          <div class='error-message'>That username is already taken.  Please enter another username.</div>
-        </div>`);
+          <div class='error-message'>That username is already taken. Please enter another username.</div>
+          <button disabled class="btn btn-default">Submit</button>
+        </div>
+      `);
     } else if (!exists) {
-      // Modal confirmation popup?
-      // Add to KV and redirect to login
-      createUser(username);
+      return c.html(html`
+        <div hx-target="this" hx-swap="outerHTML" class="">
+          <label>Username</label>
+          <input name="username" hx-post="/auth/username-exists" hx-indicator="#ind" value=${username} aria-invalid="false" aria-required="true">
+          <img id="ind" src="/img/bars.svg" class="htmx-indicator"/>
+          <button class="btn btn-default">Submit</button>
+        </div>
+      `);
     }
   }
-  c.header;
 });
 
 app.get("/test/protected-route", async (c: Context) => {

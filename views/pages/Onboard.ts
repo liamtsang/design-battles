@@ -6,8 +6,8 @@ export default function Onboard() {
       <div hx-target="this" hx-swap="outerHTML">
         <label>Username</label>
         <input name="username" hx-post="/auth/username-exists" hx-indicator="#ind">
+        <button disabled class="btn btn-default" type="submit">Submit</button>
       </div>
-      <button class="btn btn-default">Submit</button>
     </form>
   `;
 }

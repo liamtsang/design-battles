@@ -30,4 +30,7 @@ export async function internalUserExists(id: string) {
 }
 
 export async function createUser(username: string, oauth?: OAuthProviderInfo) {
+  console.log(
+    `User created with username: ${username} and oauth: ${oauth.id} ${oauth.provider}`,
+  );
 }

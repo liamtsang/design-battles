@@ -12,6 +12,10 @@ import auth from "./routes/auth.ts";
 
 const app = new Hono();
 
+app.route("/matchmaker", matchmaker);
+app.route("/match", match);
+app.route("/auth", auth);
+
 app.get("/", (c: Context) => {
   if (getCookie(c, "requires-onboarding") !== undefined) {
     return c.redirect("/auth/onboard");
@@ -27,13 +31,9 @@ app.notFound((c: Context) => {
 app.onError((err: HTTPException, c: Context) => {
   switch (err.status) {
     case 401: {
-      return c.text("Not allowed, 402 >:(\n" + "Message: " + err.message);
+      return c.text("Not allowed, 401 >:(\n" + "Message: " + err.message);
     }
   }
 });
-
-app.route("/matchmaker", matchmaker);
-app.route("/match", match);
-app.route("/auth", auth);
 
 Deno.serve(app.fetch);
