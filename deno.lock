@@ -5,6 +5,7 @@
     "https://deno.land/std/uuid/mod.ts": "https://deno.land/std@0.216.0/uuid/mod.ts",
     "https://deno.land/x/hono/mod.ts": "https://deno.land/x/hono@v4.0.4/mod.ts",
     "https://deno.land/x/numesis/mod.ts": "https://deno.land/x/numesis@1.1.0/mod.ts",
+    "https://deno.land/x/oauth2_client/mod.ts": "https://deno.land/x/oauth2_client@v1.0.2/mod.ts",
     "https://deno.land/x/usid/mod.ts": "https://deno.land/x/usid@2.0.0/mod.ts"
   },
   "remote": {
