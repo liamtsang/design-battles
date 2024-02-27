@@ -4,7 +4,7 @@ import {
   HTTPException,
 } from "https://deno.land/x/hono@v4.0.3/mod.ts";
 import { uid } from "https://deno.land/x/usid/mod.ts";
-import { Category, Room } from "../utils/types.ts";
+import { Category, Match, Room } from "../utils/types.ts";
 import { getSessionId } from "https://deno.land/x/deno_kv_oauth@v0.10.0/mod.ts";
 
 const app = new Hono();
@@ -77,10 +77,12 @@ async function createMatch(room: Room, __matchID: string) {
   // Maybe make it easier to sort by match date?
 
   const kv = await Deno.openKv();
-  const match = {
+  const match: Match = {
+    id: __matchID,
     category: room.category,
-    status: "playing",
+    ongoing: true,
     users: room.users,
+    files: null,
     winner: null,
   };
   await kv.set(["matches", __matchID], match);

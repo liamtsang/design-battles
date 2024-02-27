@@ -15,7 +15,7 @@ export async function oauthUserExists(oauth: OAuthProviderInfo) {
     case "github": {
       const githubKey = ["users_by_github", oauth.id];
       const res = await kv.get(githubKey);
-      if (res.value) return true;
+      if (res.value) return oauth.id;
       else if (!res.value) return false;
       break;
     }

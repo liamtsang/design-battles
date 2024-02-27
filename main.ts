@@ -4,6 +4,7 @@ import {
   getCookie,
   setCookie,
 } from "https://deno.land/x/hono@v4.0.3/helper.ts";
+import { logger } from "https://deno.land/x/hono@v4.0.7/middleware.ts";
 import Layout from "./views/layout.ts";
 import Landing from "./views/pages/Landing.ts";
 import matchmaker from "./routes/matchmaker.ts";
@@ -11,6 +12,8 @@ import match from "./routes/match.ts";
 import auth from "./routes/auth.ts";
 
 const app = new Hono();
+
+app.use(logger());
 
 app.route("/matchmaker", matchmaker);
 app.route("/match", match);

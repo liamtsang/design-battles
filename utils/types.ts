@@ -17,6 +17,15 @@ export interface Room {
   status: string; // Added status field
 }
 
+export interface Match {
+  id: string;
+  ongoing: boolean;
+  users: User[];
+  category: Category;
+  files: object | null;
+  winner: User | null;
+}
+
 // Accessed by username KV
 export interface User {
   username: string;

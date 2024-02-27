@@ -1,5 +1,5 @@
 {
   "tasks": {
-    "start": "GITHUB_CLIENT_ID=2910d73c1c08621f3208 GITHUB_CLIENT_SECRET=ee6a6d1604eb404e190d6329d4a118a1380309be deno run --allow-net --allow-read --allow-env --unstable-kv --watch main.ts"
+    "start": "deno run --allow-net --allow-read --allow-env --unstable-kv --watch main.ts"
   }
 }
