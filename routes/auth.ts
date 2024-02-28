@@ -1,3 +1,4 @@
+import { load } from "https://deno.land/std/dotenv/mod.ts";
 import { Context, Hono, Next } from "https://deno.land/x/hono@v4.0.7/mod.ts";
 import { bearerAuth } from "https://deno.land/x/hono/middleware.ts";
 import {
@@ -9,13 +10,19 @@ import {
 } from "https://deno.land/x/hono@v4.0.7/helper.ts";
 import { HTTPException } from "https://deno.land/x/hono@v4.0.7/http-exception.ts";
 
+const configData = await load({
+  export: true,
+  allowEmptyValues: true,
+});
+
 const clientId = Deno.env.get("FIGMA_CLIENT_ID") as string;
 const clientSecret = Deno.env.get("FIGMA_CLIENT_SECRET");
-const cookieSecret = crypto.randomUUID();
+const cookieSecret = "36b8f84d-df4e-4d49-b662-bcde71a8764f";
 const redirectUri = "http://localhost:8000/auth/oauth/callback";
 const scope = "files:read, file_comments:write, webhooks:write";
 
 const app = new Hono();
+const kv = await Deno.openKv();
 
 app.get("/oauth/signin", (c: Context) => {
   const state = crypto.randomUUID();
@@ -51,8 +58,12 @@ app.get("/oauth/callback", async (c: Context) => {
   // refresh_token
   // expires_in
 
+  // KV for accessing tokens
+  const sessionKey = crypto.randomUUID();
+  await kv.set(["oauth_session", sessionKey], tokens.access_token);
+
   // Probably insecure exposes token
-  await setSignedCookie(c, "access_token", tokens.access_token, cookieSecret, {
+  await setSignedCookie(c, "oauth_session", sessionKey, cookieSecret, {
     httpOnly: true,
     secure: true,
     sameSite: "Strict",
@@ -79,10 +90,33 @@ app.get("/oauth/callback", async (c: Context) => {
   // handle
   // img_url
 
+  // Build user KV
+
+  const worker = new Worker(
+    new URL("../utils/workers/create_user.ts", import.meta.url).href,
+    { type: "module" },
+  );
+
+  worker.postMessage({
+    user: user,
+  });
+
   return c.html(`${user.id} ${user.handle} ${user.img_url}`);
 });
 
 app.get("/test/protected-route", async (c: Context) => {
+  const sessionCookie = await getSignedCookie(
+    c,
+    cookieSecret,
+    "oauth_session",
+  ) as string;
+  const sessionKv = await kv.get(["oauth_session", sessionCookie]);
+  console.log(sessionCookie);
+  console.log(sessionKv.value);
+  if (!sessionKv.value) {
+    throw new HTTPException(401, { message: "Invalid session token" });
+  }
+  return c.text("Protected route");
 });
 
 export default app;

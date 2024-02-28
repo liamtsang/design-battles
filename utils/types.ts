@@ -28,32 +28,32 @@ export interface Match {
 
 // Accessed by username KV
 export interface User {
-  username: string;
+  handle: string;
   email: string;
   profile: UserProfile;
   preferences: UserPreferences;
-  achievements: Achievement[];
+  // achievements: Achievement[];
   rank: UserRank;
   matchesPlayed: string[];
-  lastLogin: Date;
+  // lastLogin: Date;
   registrationDate: Date;
 }
 
-interface UserProfile {
-  displayName: string;
+export interface UserProfile {
+  handle: string;
   avatarUrl: string;
   biography: string;
   country: string;
 }
 
-interface UserRank {
+export interface UserRank {
   elo: number;
   rankTitle: string;
   rankLevel: number;
   league: string;
 }
 
-interface Achievement {
+export interface Achievement {
   id: string;
   name: string;
   description: string;
@@ -61,9 +61,7 @@ interface Achievement {
   achievedDate: Date;
 }
 
-interface UserPreferences {
+export interface UserPreferences {
   theme: "light" | "dark";
   notifications: boolean;
-  language: string;
-  soundEffects: boolean;
 }
