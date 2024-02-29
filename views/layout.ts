@@ -22,7 +22,7 @@ export default function Layout({
           <a href="/">Home</a>
           <a href="/auth/oauth/signin">Sign In</a>
           <a href="/auth/oauth/signout">Sign Out</a>
-          <a href="/matchmaker">Find Match</a>
+          <a href="/matchmaker?c=web">Find Match</a>
           <p>${user}</p>
         </header>
         ${content}

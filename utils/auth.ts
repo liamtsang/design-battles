@@ -38,8 +38,6 @@ export async function signOut(c: Context) {
 }
 
 export async function createUser(data: Object) {
-  console.log(data);
-
   const user_id = data.id;
   const user_email = data.email;
   const user_handle = data.handle;
@@ -73,9 +71,6 @@ export async function createUser(data: Object) {
     matchesPlayed: [],
     registrationDate: new Date(Date.now()),
   };
-  console.log(User);
-  console.log(user_id);
+  console.log("User Created: " + User);
   const _a = await kv.set(["user", user_id], User);
-  const t = await kv.get(["user", user_id]);
-  console.log(t);
 }

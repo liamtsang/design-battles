@@ -1,36 +1,17 @@
-﻿import { useDeferredValue } from "https://deno.land/x/hono@v4.0.4/jsx/hooks/index.ts";
-import { OAuthProviderInfo, User } from "./types.ts";
-import { uid } from "https://deno.land/x/usid/mod.ts";
-
-// KV pairs
-// By internal ID
-// By githubID
-
-// Login callback -> Check user by oauth -if new-> Get username -> CreateUser
+﻿import { Context } from "https://deno.land/x/hono@v4.0.7/mod.ts";
+import { getCookie } from "https://deno.land/x/hono@v4.0.7/helper.ts";
+import { HTTPException } from "https://deno.land/x/hono@v4.0.7/http-exception.ts";
+import { User } from "./types.ts";
 
 const kv = await Deno.openKv();
 
-export async function oauthUserExists(oauth: OAuthProviderInfo) {
-  switch (oauth.provider) {
-    case "github": {
-      const githubKey = ["users_by_github", oauth.id];
-      const res = await kv.get(githubKey);
-      if (res.value) return oauth.id;
-      else if (!res.value) return false;
-      break;
-    }
-    case "": {
-      break;
-    }
+export async function getUser(c: Context): Promise<[string, unknown]> {
+  const id = getCookie(c, "id") as string;
+  const user = await kv.get(["user", id]);
+  if (!user.value) {
+    throw new HTTPException(401, {
+      message: "User does not exist or you are not logged in.",
+    });
   }
-}
-
-export async function internalUserExists(id: string) {
-  return true;
-}
-
-export async function createUser(username: string, oauth?: OAuthProviderInfo) {
-  console.log(
-    `User created with username: ${username} and oauth: ${oauth.id} ${oauth.provider}`,
-  );
+  return [id, user.value];
 }

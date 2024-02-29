@@ -20,14 +20,15 @@ export interface Room {
 export interface Match {
   id: string;
   ongoing: boolean;
-  users: User[];
+  users: string[]; // Ids - could be User objects instead
   category: Category;
   files: object | null;
   winner: User | null;
 }
 
-// Accessed by username KV
+// Accessed by ID KV
 export interface User {
+  // uniqueHandle: string;   <-- Implement later
   handle: string;
   email: string;
   profile: UserProfile;

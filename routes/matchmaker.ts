@@ -4,8 +4,9 @@ import {
   HTTPException,
 } from "https://deno.land/x/hono@v4.0.7/mod.ts";
 import { uid } from "https://deno.land/x/usid/mod.ts";
-import { Category, Match, Room } from "../utils/types.ts";
+import { Category, Match, Room, User } from "../utils/types.ts";
 import { verifySession } from "../utils/auth.ts";
+import { getUser } from "../utils/user.ts";
 
 const app = new Hono();
 let rooms: Room[] = [];
@@ -15,55 +16,68 @@ app.get("/", async (c: Context) => {
     throw new HTTPException(401, { message: "Invalid Token" });
   }
 
-  // Check if category header value is provided and is of valid Category type
-  if (
-    !categoryHeaderValue ||
-    !(categoryHeaderValue in Category)
-  ) {
-    throw new HTTPException(401, { message: "Missing user information" });
+  const categoryHeaderValue = c.req.query("c");
+  const userArr = await getUser(c);
+  const user = userArr[1] as User;
+  const userId = userArr[0] as string;
+
+  if (!categoryHeaderValue || !(categoryHeaderValue in Category)) {
+    throw new HTTPException(401, { message: "Missing game category." });
   }
-  // Parse category header value to Category type
   const category: Category = categoryHeaderValue as Category;
 
-  // Remove empty rooms
   rooms = rooms.filter((room) => room.users.length > 0);
 
-  // Check for rooms with available space and suitable Elo range
-  const suitableRoom = rooms.find(
+  const suitableRoom: Room = rooms.find(
     (room) =>
       category == room.category &&
       room.users.length < 2 &&
-      Math.abs(room.hostElo - userElo) < 100,
+      Math.abs(room.hostElo - user.rank.elo) < 400,
+  ) as Room;
+
+  const searchResponse = await searchForRoom(
+    suitableRoom,
+    category,
+    user,
+    userId,
   );
 
+  // What to do with response? Set up the room and set up websockets
+  // Ideally this would look like a match search page like league so it would be all done server side until both players connect
+
+  // Setup websockets middleware
+  // Read websockets middleware & redirect
+  // Close websockets
+});
+
+async function searchForRoom(
+  suitableRoom: Room,
+  category: Category,
+  user: User,
+  userId: string,
+) {
   if (suitableRoom) {
-    suitableRoom.users.push(userUUID);
+    suitableRoom.users.push(userId);
     suitableRoom.status = "playing";
     if (suitableRoom.users.length === 2) {
-      // Create match KV
       const __matchID = uid(6);
       await createMatch(suitableRoom, __matchID);
       suitableRoom.users = [];
-      return new Response("", {
-        status: 307,
-        headers: { Location: `/match/${__matchID}` },
-      });
-    } else {
-      return c.text(`You have joined room: ${suitableRoom.roomID}`);
-    }
+      return { response: "match", value: __matchID }; // 2 Players and new match return
+    } else return { response: "error", value: "Suitableroom error" }; // Error return
   } else {
-    // Create a new room
     const newRoom: Room = {
       roomID: rooms.length + 1,
       category: category,
-      hostElo: userElo,
-      users: [userUUID],
-      status: "waiting", // Set initial status to waiting
+      hostElo: user.rank.elo,
+      users: [userId],
+      status: "waiting",
     };
     rooms.push(newRoom);
-    return c.text(`You have created and joined room: ${newRoom.roomID}`);
+    console.log(rooms);
+    return { response: "room", value: newRoom.roomID }; // New room return
   }
-});
+}
 
 async function createMatch(room: Room, __matchID: string) {
   // TODO:
