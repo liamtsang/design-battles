@@ -10,6 +10,7 @@ import Landing from "./views/pages/Landing.ts";
 import matchmaker from "./routes/matchmaker.ts";
 import match from "./routes/match.ts";
 import auth from "./routes/auth.ts";
+import user from "./routes/user.ts";
 
 const app = new Hono();
 
@@ -18,6 +19,7 @@ app.use(logger());
 app.route("/matchmaker", matchmaker);
 app.route("/match", match);
 app.route("/auth", auth);
+app.route("/user", user);
 
 app.get("/", (c: Context) => {
   if (getCookie(c, "requires-onboarding") !== undefined) {

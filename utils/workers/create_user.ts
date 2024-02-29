@@ -4,7 +4,7 @@ import { User, UserPreferences, UserProfile, UserRank } from "../types.ts";
 self.onmessage = async (e) => {
   const kv = await Deno.openKv();
 
-  const user_id = e.data.user.id;
+  const user_id = e.data.user.id.toString();
   const user_email = e.data.user.email;
   const user_handle = e.data.user.handle;
   const img_url = e.data.user.img_url;
@@ -37,8 +37,11 @@ self.onmessage = async (e) => {
     matchesPlayed: [],
     registrationDate: new Date(Date.now()),
   };
-
-  kv.set(["users", user_id], User);
+  console.log(User);
+  console.log(user_id);
+  const _a = await kv.set(["user", user_id], User);
+  const t = await kv.get(["user", user_id]);
+  console.log(t);
 
   self.close();
 };
