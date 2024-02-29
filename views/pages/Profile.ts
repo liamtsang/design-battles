@@ -4,7 +4,6 @@ import { User } from "../../utils/types.ts";
 export default function Profile(user: User) {
   return html`
     <div>${user.handle}</div>
-    
     <img src="${user.profile.avatarUrl}" />
   `;
 }
