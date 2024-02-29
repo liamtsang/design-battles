@@ -2,27 +2,21 @@ import {
   Context,
   Hono,
   HTTPException,
-} from "https://deno.land/x/hono@v4.0.3/mod.ts";
+} from "https://deno.land/x/hono@v4.0.7/mod.ts";
 import { uid } from "https://deno.land/x/usid/mod.ts";
 import { Category, Match, Room } from "../utils/types.ts";
-import { getSessionId } from "https://deno.land/x/deno_kv_oauth@v0.10.0/mod.ts";
+import { verifySession } from "../utils/auth.ts";
 
 const app = new Hono();
 let rooms: Room[] = [];
 
 app.get("/", async (c: Context) => {
-  if (await getSessionId(c.req.raw) === undefined) {
+  if (await verifySession(c) === undefined) {
     throw new HTTPException(401, { message: "Invalid Token" });
   }
 
-  const userUUID = c.req.header("X-User-UUID");
-  const userElo: number = +c.req.header("X-User-Elo");
-  const categoryHeaderValue = c.req.header("X-Category");
-
   // Check if category header value is provided and is of valid Category type
   if (
-    !userUUID ||
-    !userElo ||
     !categoryHeaderValue ||
     !(categoryHeaderValue in Category)
   ) {
