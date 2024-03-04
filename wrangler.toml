@@ -1,0 +1,27 @@
+name = "design-battles-cloudflare"
+compatibility_date = "2023-12-01"
+
+# [vars]
+# MY_VARIABLE = "production_value"
+
+[env.dev]
+vars = { FIGMA_CLIENT_SECRET = "e5GktcsUQy1qLIjYgVXAk7PoQimjtJ" , FIGMA_CLIENT_ID = "1x3QLZoBeM1BFoHSrySDoy" }
+
+kv_namespaces = [ 
+  { binding = "USER_KV", id = "bde5e5bf7ff84aafb4f6a74cd94399d0"}, { binding = "OAUTH_KV", id = "61a74fbbe61c4757bc2fd2dbd3cf00b4" } , { binding = "ROOMS_KV", id = "928b6009ab104a369642267b35e90fec" }
+]
+
+# [[env.dev.vars]]
+# FIGMA_CLIENT_SECRET = "e5GktcsUQy1qLIjYgVXAk7PoQimjtJ"
+# FIGMA_CLIENT_ID = "1x3QLZoBeM1BFoHSrySDoy"
+# binding = "MY_KV_NAMESPACE"
+# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# [[r2_buckets]]
+# binding = "MY_BUCKET"
+# bucket_name = "my-bucket"
+
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "my-database"
+# database_id = ""
