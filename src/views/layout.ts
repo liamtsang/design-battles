@@ -27,14 +27,14 @@ export default function Layout({
           <a href="/">Home</a>
           <a href="/auth/oauth/signin">Sign In</a>
           <a href="/auth/oauth/signout">Sign Out</a>
-          <a href="/matchmaker?c=web">Find Match</a>
-          <div
-            hx-ext="sse"
-            sse-connect="/matchmaker/sse"
-            sse-swap="time-update"
+          <a href="/matchmaker">Find Match</a>
+          <button
+            hx-trigger="click"
+            hx-get="/matchmaker/button"
+            hx-swap="outerHTML"
           >
-            placeholder
-          </div>
+            Find Match
+          </button>
           <p>${user}</p>
         </header>
         ${content}

@@ -3,7 +3,9 @@ import { getCookie } from 'hono/cookie'
 import { HTTPException } from 'hono/http-exception'
 import { User, UserProfile, UserRank, FigmaUser } from './types'
 
-export async function getUser(c: Context): Promise<[string, unknown]> {
+export async function getUser(
+  c: Context
+): Promise<{ id: string; object: unknown }> {
   const id = getCookie(c, 'id') as string
   const user = await c.env.USER_KV.get(id)
   if (user === null) {
@@ -11,7 +13,7 @@ export async function getUser(c: Context): Promise<[string, unknown]> {
       message: 'User does not exist or you are not logged in.'
     })
   }
-  return [id, user]
+  return { id: id, object: JSON.parse(user) }
 }
 
 export async function createUser(c: Context, data: FigmaUser) {

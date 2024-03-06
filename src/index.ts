@@ -2,6 +2,8 @@ import { Context, Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import { getCookie, setCookie } from 'hono/cookie'
 import { logger } from 'hono/logger'
+import { Env } from 'hono'
+
 import { Bindings } from './utils/types'
 import Layout from './views/layout'
 import Landing from './views/pages/Landing'
@@ -24,6 +26,13 @@ app.get('/', (c: Context) => {
   return c.html(Layout({ title: 'Home', user: 'test', content: Landing() }))
 })
 
+app.get('/durable', async (c: Context) => {
+  let id = c.env.DURABLE_OBJECT.idFromName(new URL(c.req.url).pathname)
+  let stub = c.env.DURABLE_OBJECT.get(id)
+  let response = await stub.fetch(c.req.raw)
+  return response
+})
+
 app.notFound((c: Context) => {
   return c.text('Aw shucks, 404', 404)
 })
@@ -40,5 +49,13 @@ app.onError((err: Error, c: Context) => {
   //   }
   // }
 })
+
+export class MyDurableObject {
+  constructor(state: DurableObjectState, env: Env) {}
+
+  async fetch(request: Request) {
+    return new Response('Hello World')
+  }
+}
 
 export default app

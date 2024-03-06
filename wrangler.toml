@@ -11,6 +11,15 @@ kv_namespaces = [
   { binding = "USER_KV", id = "bde5e5bf7ff84aafb4f6a74cd94399d0"}, { binding = "OAUTH_KV", id = "61a74fbbe61c4757bc2fd2dbd3cf00b4" } , { binding = "ROOMS_KV", id = "928b6009ab104a369642267b35e90fec" }
 ]
 
+durable_objects.bindings = [
+  { name = "DURABLE_OBJECT", class_name="MyDurableObject" }
+]
+
+[[migrations]]
+tag = "v1" # Should be unique for each entry
+new_classes = ["MyDurableObject"] # Array of new classes
+
+
 # [[env.dev.vars]]
 # FIGMA_CLIENT_SECRET = "e5GktcsUQy1qLIjYgVXAk7PoQimjtJ"
 # FIGMA_CLIENT_ID = "1x3QLZoBeM1BFoHSrySDoy"

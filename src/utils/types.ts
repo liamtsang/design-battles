@@ -7,6 +7,7 @@ export enum Category {
 export type Bindings = {
   USER_KV: KVNamespace
   OAUTH_KV: KVNamespace
+  ROOMS_KV: KVNamespace
   FIGMA_CLIENT_ID: string
   FIGMA_CLIENT_SECRET: string
 }
