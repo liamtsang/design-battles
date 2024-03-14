@@ -4,7 +4,8 @@
     "deploy": "wrangler deploy --minify src/index.ts"
   },
   "dependencies": {
-    "hono": "^4.0.8"
+    "hono": "^4.0.8",
+    "nanoid": "^5.0.6"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240222.0",

@@ -1,10 +1,17 @@
 export enum Category {
-  ui = 'ui',
-  graphic = 'graphic',
-  web = 'web'
+  physical = 'physical',
+  digital = 'digital'
 }
 
 export type Bindings = {
+  USER_KV: KVNamespace
+  OAUTH_KV: KVNamespace
+  ROOMS_KV: KVNamespace
+  FIGMA_CLIENT_ID: string
+  FIGMA_CLIENT_SECRET: string
+}
+
+export interface Env {
   USER_KV: KVNamespace
   OAUTH_KV: KVNamespace
   ROOMS_KV: KVNamespace
@@ -38,7 +45,7 @@ export interface FigmaUser {
 // img_url
 
 export interface Room {
-  roomID: number
+  roomID: string
   category: Category
   hostElo: number
   users: string[]
